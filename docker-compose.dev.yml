@@ -1,8 +1,90 @@
 version: '3.8'
 
 services:
-  # Override frontend for development with hot reload
-  frontend:
-    command: npm run dev
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: todo-db-dev
+    env_file:
+      - .env
     environment:
-      - NODE_ENV=development
+      POSTGRES_USER: ${POSTGRES_USER:-todo_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-todo_password}
+      POSTGRES_DB: ${POSTGRES_DB:-todo_db}
+    ports:
+      - "5433:5432"  # Expose on port 5433 to avoid conflicts
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-todo_user} -d ${POSTGRES_DB:-todo_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - todo-network
+
+  # Flask Backend with hot reload
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: todo-backend-dev
+    env_file:
+      - .env
+      - backend/.env
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-todo_user}:${POSTGRES_PASSWORD:-todo_password}@db:5432/${POSTGRES_DB:-todo_db}
+      FLASK_ENV: development
+      FLASK_DEBUG: 1
+      FLASK_APP: app.py
+      PYTHONUNBUFFERED: 1
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_API_URL: ${OPENAI_API_URL:-https://api.openai.com/v1}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-3.5-turbo}
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key}
+    ports:
+      - "5001:5000"  # Expose on port 5001 (macOS uses 5000 for Control Center)
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - backend_cache:/app/__pycache__
+    command: python app.py
+    restart: unless-stopped
+    networks:
+      - todo-network
+
+  # Next.js Frontend with hot reload
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: todo-frontend-dev
+    env_file:
+      - .env
+      - frontend/.env.local
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:5001/api}
+      WATCHPACK_POLLING: true  # Enable polling for better hot reload in Docker
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    command: npm run dev
+    restart: unless-stopped
+    networks:
+      - todo-network
+
+volumes:
+  postgres_data_dev:
+  backend_cache:
+
+networks:
+  todo-network:
+    driver: bridge

@@ -7,9 +7,11 @@ A full-stack todo application built with Flask (Python), PostgreSQL, Next.js, an
 - Create, read, update, and delete todos
 - Mark todos as completed/incomplete
 - Filter todos by status (all, active, completed)
+- **AI-powered suggestions** for todo titles and descriptions (using OpenAI)
 - Modern and responsive UI with TailwindCSS
 - RESTful API backend with Flask
 - PostgreSQL database for data persistence
+- **Docker support** with hot reload for development
 
 ## Project Structure
 
@@ -74,12 +76,38 @@ The application will be available at:
 
 ### Docker Development Mode
 
-For development with hot reload:
+For development with hot reload enabled for both backend and frontend:
 
 ```bash
-# Run with development compose file
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+# Copy environment files if you haven't already
+cp .env.example .env
+cp backend/.env.example backend/.env
+cp frontend/.env.local.example frontend/.env.local
+
+# Edit .env files with your configuration (especially OpenAI API key)
+# nano .env or vim .env
+
+# Run in development mode with hot reload
+docker-compose -f docker-compose.dev.yml up
+
+# Or run in detached mode
+docker-compose -f docker-compose.dev.yml up -d
+
+# View logs
+docker-compose -f docker-compose.dev.yml logs -f
+
+# Stop services
+docker-compose -f docker-compose.dev.yml down
 ```
+
+**Development Mode Features:**
+- ✅ Hot reload for Flask backend (code changes auto-reload)
+- ✅ Hot reload for Next.js frontend (instant updates)
+- ✅ Environment variables loaded from `.env` files
+- ✅ Database accessible at `localhost:5432`
+- ✅ Backend API at `http://localhost:5000`
+- ✅ Frontend at `http://localhost:3000`
+- ✅ Persistent data with named volumes
 
 ### Docker Commands
 
@@ -214,6 +242,12 @@ The frontend will start on `http://localhost:3000`
 - `PUT /api/todos/:id` - Update a todo
 - `DELETE /api/todos/:id` - Delete a todo
 
+### AI Features (requires OpenAI API key)
+
+- `POST /api/ai/generate-description` - Generate description for a todo title
+- `POST /api/ai/improve-title` - Get an improved version of a todo title
+- `POST /api/ai/suggestions` - Get AI suggestions for both title and description
+
 ### Health Check
 
 - `GET /api/health` - Check API health
@@ -227,6 +261,7 @@ The frontend will start on `http://localhost:3000`
 - Flask-CORS - Cross-origin resource sharing
 - PostgreSQL - Database
 - psycopg2 - PostgreSQL adapter
+- OpenAI API - AI-powered suggestions
 
 ### Frontend
 
