@@ -1,14 +1,18 @@
 # Todo Application
 
-A full-stack todo application built with Flask (Python), PostgreSQL, Next.js, and TailwindCSS.
+A full-stack todo application built with Flask (Python), PostgreSQL, Next.js, TailwindCSS, and Shadcn UI.
 
 ## Features
 
-- Create, read, update, and delete todos
+- **User Authentication** with JWT tokens
+  - User registration and login with secure password hashing
+  - Protected routes and API endpoints
+  - Session management with localStorage
+- Create, read, update, and delete todos (per-user isolation)
 - Mark todos as completed/incomplete
 - Filter todos by status (all, active, completed)
-- **AI-powered suggestions** for todo titles and descriptions (using OpenAI)
-- Modern and responsive UI with TailwindCSS
+- **AI-powered suggestions** for todo titles and descriptions (using OpenAI, requires authentication)
+- Modern and responsive UI with Shadcn UI components
 - RESTful API backend with Flask
 - PostgreSQL database for data persistence
 - **Docker support** with hot reload for development
@@ -18,16 +22,30 @@ A full-stack todo application built with Flask (Python), PostgreSQL, Next.js, an
 ```
 todo/
 ├── backend/           # Flask backend
-│   ├── app.py        # Main Flask application
-│   ├── models.py     # Database models
+│   ├── app.py        # Main Flask application with auth & todo routes
+│   ├── models.py     # Database models (User, Todo)
+│   ├── ai_service.py # OpenAI integration service
 │   ├── requirements.txt
 │   └── .env.example
 ├── frontend/          # Next.js frontend
 │   ├── pages/        # Next.js pages
+│   │   ├── index.tsx     # Main todo list page with auth UI
+│   │   └── _app.tsx      # App wrapper with AuthProvider
 │   ├── components/   # React components
+│   │   ├── TodoForm.tsx      # Todo creation form
+│   │   ├── TodoItem.tsx      # Todo item display
+│   │   ├── LoginForm.tsx     # Login form (Shadcn UI)
+│   │   ├── RegisterForm.tsx  # Registration form (Shadcn UI)
+│   │   └── ui/              # Shadcn UI components
+│   ├── contexts/     # React contexts
+│   │   └── AuthContext.tsx  # Authentication context
 │   ├── services/     # API services
+│   │   ├── api.ts       # Todo API & JWT interceptor
+│   │   └── aiService.ts # AI features API
+│   ├── types/        # TypeScript types
 │   ├── styles/       # Global styles
 │   └── package.json
+├── CLAUDE.md         # Development documentation
 └── README.md
 ```
 
@@ -231,12 +249,14 @@ The frontend will start on `http://localhost:3000`
 2. Start the Flask backend (port 5000)
 3. Start the Next.js frontend (port 3000)
 4. Open your browser and navigate to `http://localhost:3000`
+5. **Register a new account** or **login** to access the application
+6. Start managing your todos and use AI features to enhance them!
 
 ## API Endpoints
 
-### Todos
+### Todos **[Requires Authentication]**
 
-- `GET /api/todos` - Get all todos
+- `GET /api/todos` - Get all todos for current user
 - `GET /api/todos/:id` - Get a specific todo
 - `POST /api/todos` - Create a new todo
 - `PUT /api/todos/:id` - Update a todo
@@ -258,7 +278,7 @@ The frontend will start on `http://localhost:3000`
 
 📖 **See [AUTH_API.md](AUTH_API.md) for complete authentication documentation**
 
-### AI Features (requires OpenAI API key)
+### AI Features **[Requires Authentication & OpenAI API key]**
 
 - `POST /api/ai/generate-description` - Generate description for a todo title
 - `POST /api/ai/improve-title` - Get an improved version of a todo title
@@ -283,10 +303,13 @@ The frontend will start on `http://localhost:3000`
 
 ### Frontend
 
-- Next.js - React framework
-- React - UI library
+- Next.js 14 - React framework
+- React 18 - UI library
+- TypeScript - Type-safe JavaScript
+- Shadcn UI - Modern component library
 - TailwindCSS - Utility-first CSS framework
-- Axios - HTTP client
+- Lucide React - Icon library
+- Axios - HTTP client with JWT interceptors
 
 ## Development
 

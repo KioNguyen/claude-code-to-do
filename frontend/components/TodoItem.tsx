@@ -1,5 +1,11 @@
 import { useState } from 'react';
 import { Todo, UpdateTodoInput } from '../types/todo';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Edit2, Trash2, Save, X } from 'lucide-react';
 
 interface TodoItemProps {
   todo: Todo;
@@ -32,82 +38,87 @@ export default function TodoItem({ todo, onUpdate, onDelete }: TodoItemProps) {
 
   if (isEditing) {
     return (
-      <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200">
-        <input
-          type="text"
-          value={editedTitle}
-          onChange={(e) => setEditedTitle(e.target.value)}
-          className="w-full mb-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Todo title"
-        />
-        <textarea
-          value={editedDescription}
-          onChange={(e) => setEditedDescription(e.target.value)}
-          className="w-full mb-3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Description (optional)"
-          rows={3}
-        />
-        <div className="flex gap-2">
-          <button
-            onClick={handleSave}
-            className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
-          >
-            Save
-          </button>
-          <button
-            onClick={handleCancel}
-            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
+      <Card>
+        <CardContent className="p-4 space-y-3">
+          <Input
+            type="text"
+            value={editedTitle}
+            onChange={(e) => setEditedTitle(e.target.value)}
+            placeholder="Todo title"
+          />
+          <Textarea
+            value={editedDescription}
+            onChange={(e) => setEditedDescription(e.target.value)}
+            placeholder="Description (optional)"
+            rows={3}
+          />
+          <div className="flex gap-2">
+            <Button onClick={handleSave} size="sm" className="gap-2">
+              <Save className="h-4 w-4" />
+              Save
+            </Button>
+            <Button onClick={handleCancel} variant="outline" size="sm" className="gap-2">
+              <X className="h-4 w-4" />
+              Cancel
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200 flex items-start gap-3">
-      <input
-        type="checkbox"
-        checked={todo.completed}
-        onChange={handleToggleComplete}
-        className="mt-1 w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
-      />
-      <div className="flex-1">
-        <h3
-          className={`text-lg font-semibold ${
-            todo.completed ? 'line-through text-gray-400' : 'text-gray-800'
-          }`}
-        >
-          {todo.title}
-        </h3>
-        {todo.description && (
-          <p
-            className={`mt-1 text-sm ${
-              todo.completed ? 'line-through text-gray-400' : 'text-gray-600'
-            }`}
-          >
-            {todo.description}
-          </p>
-        )}
-        <p className="mt-2 text-xs text-gray-400">
-          Created: {new Date(todo.created_at).toLocaleString()}
-        </p>
-      </div>
-      <div className="flex gap-2">
-        <button
-          onClick={() => setIsEditing(true)}
-          className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
-        >
-          Edit
-        </button>
-        <button
-          onClick={() => onDelete(todo.id)}
-          className="px-3 py-1 text-sm bg-red-500 text-white rounded-md hover:bg-red-600 transition"
-        >
-          Delete
-        </button>
-      </div>
-    </div>
+    <Card className="transition-all hover:shadow-md">
+      <CardContent className="p-4">
+        <div className="flex items-start gap-3">
+          <Checkbox
+            checked={todo.completed}
+            onCheckedChange={handleToggleComplete}
+            className="mt-1"
+          />
+          <div className="flex-1 min-w-0">
+            <h3
+              className={`text-lg font-semibold ${
+                todo.completed ? 'line-through text-muted-foreground' : 'text-foreground'
+              }`}
+            >
+              {todo.title}
+            </h3>
+            {todo.description && (
+              <p
+                className={`mt-1 text-sm ${
+                  todo.completed ? 'line-through text-muted-foreground' : 'text-muted-foreground'
+                }`}
+              >
+                {todo.description}
+              </p>
+            )}
+            <p className="mt-2 text-xs text-muted-foreground">
+              Created: {new Date(todo.created_at).toLocaleString()}
+            </p>
+          </div>
+          <div className="flex gap-2 flex-shrink-0">
+            <Button
+              onClick={() => setIsEditing(true)}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              <Edit2 className="h-4 w-4" />
+              Edit
+            </Button>
+            <Button
+              onClick={() => onDelete(todo.id)}
+              variant="destructive"
+              size="sm"
+              className="gap-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

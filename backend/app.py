@@ -129,7 +129,8 @@ def delete_todo(current_user, todo_id):
 
 # AI Suggestion Endpoints
 @app.route('/api/ai/generate-description', methods=['POST'])
-def generate_description():
+@jwt_required_with_user
+def generate_description(current_user):
     """Generate a description for a todo based on its title"""
     data = request.get_json()
 
@@ -146,7 +147,8 @@ def generate_description():
         return jsonify({'error': f'Failed to generate description: {str(e)}'}), 500
 
 @app.route('/api/ai/improve-title', methods=['POST'])
-def improve_title():
+@jwt_required_with_user
+def improve_title(current_user):
     """Improve a todo title"""
     data = request.get_json()
 
@@ -163,7 +165,8 @@ def improve_title():
         return jsonify({'error': f'Failed to improve title: {str(e)}'}), 500
 
 @app.route('/api/ai/suggestions', methods=['POST'])
-def get_suggestions():
+@jwt_required_with_user
+def get_suggestions(current_user):
     """Get AI suggestions for both title and description"""
     data = request.get_json()
 

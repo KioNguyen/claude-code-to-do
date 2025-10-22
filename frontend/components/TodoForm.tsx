@@ -1,6 +1,13 @@
 import { useState, FormEvent } from 'react';
 import { CreateTodoInput } from '../types/todo';
 import { aiService } from '../services/aiService';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Sparkles, Loader2, Plus } from 'lucide-react';
 
 interface TodoFormProps {
   onAdd: (todoData: CreateTodoInput) => Promise<void>;
@@ -67,75 +74,88 @@ export default function TodoForm({ onAdd }: TodoFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">Add New Todo</h2>
+    <Card>
+      <CardHeader>
+        <CardTitle>Add New Todo</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {aiError && (
+            <Alert variant="destructive">
+              <AlertDescription>{aiError}</AlertDescription>
+            </Alert>
+          )}
 
-      {aiError && (
-        <div className="mb-4 bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-md text-sm">
-          {aiError}
-        </div>
-      )}
+          <div className="space-y-2">
+            <Label htmlFor="title">Title</Label>
+            <Input
+              id="title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="What needs to be done?"
+              required
+            />
+          </div>
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Title
-        </label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="What needs to be done?"
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          required
-        />
-      </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="description">Description</Label>
+              <Button
+                type="button"
+                onClick={handleGenerateDescription}
+                disabled={isGenerating || !title.trim()}
+                size="sm"
+                className="gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0"
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-3 w-3" />
+                    AI Generate
+                  </>
+                )}
+              </Button>
+            </div>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Description (optional)"
+              rows={3}
+            />
+          </div>
 
-      <div className="mb-4">
-        <div className="flex items-center justify-between mb-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Description
-          </label>
-          <button
-            type="button"
-            onClick={handleGenerateDescription}
-            disabled={isGenerating || !title.trim()}
-            className="text-xs px-3 py-1 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-          >
-            {isGenerating ? (
-              <>
-                <span className="inline-block animate-spin rounded-full h-3 w-3 border-b-2 border-white"></span>
-                Generating...
-              </>
-            ) : (
-              <>✨ AI Generate</>
-            )}
-          </button>
-        </div>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Description (optional)"
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          rows={3}
-        />
-      </div>
-
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={handleGetAISuggestions}
-          disabled={isGenerating || !title.trim()}
-          className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-md hover:from-purple-600 hover:to-pink-600 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isGenerating ? 'Generating...' : '✨ Improve with AI'}
-        </button>
-        <button
-          type="submit"
-          className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition font-semibold"
-        >
-          Add Todo
-        </button>
-      </div>
-    </form>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              onClick={handleGetAISuggestions}
+              disabled={isGenerating || !title.trim()}
+              className="flex-1 gap-2 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 hover:from-violet-600 hover:via-purple-600 hover:to-fuchsia-600 text-white border-0 shadow-lg shadow-purple-500/50"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Improving...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  Improve with AI
+                </>
+              )}
+            </Button>
+            <Button type="submit" className="flex-1 gap-2">
+              <Plus className="h-4 w-4" />
+              Add Todo
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
