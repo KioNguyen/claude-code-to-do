@@ -335,3 +335,75 @@ The project doesn't have automated tests yet. When testing manually:
 - Consider adding email verification flow
 - Add loading skeleton components for better UX
 - Consider adding toast notifications for success/error messages
+
+---
+
+### Session: 2025-01-22 (Continued) - Dialog Component & Form Validation
+
+**Completed Work:**
+
+1. **Implemented Shadcn UI Dialog Component**
+   - Created `components/ui/dialog.tsx` with full Radix UI Dialog primitive
+   - Replaced custom modal implementation with Dialog component
+   - Updated `index.tsx` to use Dialog with `open` and `onOpenChange` props
+   - Benefits:
+     - Smooth fade-in/zoom-in animations
+     - Auto-close on overlay click and ESC key
+     - Built-in accessibility (focus management, ARIA attributes)
+     - Cleaner, more declarative code
+
+2. **Integrated react-hook-form for Form Validation**
+   - Installed `react-hook-form` package
+   - Updated `LoginForm.tsx` with react-hook-form:
+     - Replaced manual state management with `useForm` hook
+     - Added validation rules (required fields)
+     - Added inline error messages below fields
+   - Updated `RegisterForm.tsx` with react-hook-form:
+     - Replaced manual state management with `useForm` hook
+     - Added comprehensive validation:
+       - Username: required, min 3 characters
+       - Email: required, valid email pattern
+       - Password: required, min 6 characters
+       - Confirm Password: required, must match password
+     - Field-level error display with `errors` object
+
+3. **Added First Name and Last Name to Registration**
+   - Backend already supported these fields (optional in User model)
+   - Updated `AuthContext.tsx`:
+     - Added `first_name` and `last_name` to User interface
+     - Updated `register()` function signature with optional parameters
+     - Sends first_name and last_name to backend API
+   - Updated `RegisterForm.tsx`:
+     - Added firstName and lastName to form data interface
+     - Created two-column grid layout for name fields
+     - Added validation: required, min 2 characters each
+     - Proper HTML autocomplete attributes (given-name, family-name)
+     - Fields positioned at top of form before username
+
+**Key Technical Decisions:**
+
+- Used Radix UI Dialog primitive for consistent behavior across browsers
+- react-hook-form provides better performance (less re-renders)
+- Made first/last names required in frontend validation (backend accepts optional)
+- Two-column grid layout for better space utilization
+- Field-level error messages instead of form-level only
+
+**Files Created:**
+
+- `frontend/components/ui/dialog.tsx`
+
+**Files Modified:**
+
+- `frontend/pages/index.tsx` - Updated to use Dialog component
+- `frontend/components/LoginForm.tsx` - Added react-hook-form
+- `frontend/components/RegisterForm.tsx` - Added react-hook-form and name fields
+- `frontend/contexts/AuthContext.tsx` - Added first_name and last_name support
+- `frontend/package.json` - Added @radix-ui/react-dialog and react-hook-form
+
+**Benefits Achieved:**
+
+- Better form UX with real-time validation feedback
+- Reduced boilerplate code for form management
+- Improved accessibility with Dialog component
+- More complete user profiles with first/last names
+- Consistent validation patterns across forms

@@ -5,6 +5,8 @@ interface User {
   id: number;
   username: string;
   email: string;
+  first_name?: string;
+  last_name?: string;
 }
 
 interface AuthContextType {
@@ -12,7 +14,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (username: string, password: string) => Promise<void>;
-  register: (username: string, email: string, password: string) => Promise<void>;
+  register: (username: string, email: string, password: string, firstName?: string, lastName?: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -70,9 +72,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const register = async (username: string, email: string, password: string) => {
+  const register = async (username: string, email: string, password: string, firstName?: string, lastName?: string) => {
     try {
-      const response = await api.post('/auth/register', { username, email, password });
+      const response = await api.post('/auth/register', {
+        username,
+        email,
+        password,
+        first_name: firstName,
+        last_name: lastName
+      });
       const { access_token, user: userData } = response.data;
 
       localStorage.setItem('access_token', access_token);

@@ -13,6 +13,8 @@ interface RegisterFormProps {
 }
 
 interface RegisterFormData {
+  firstName: string;
+  lastName: string;
   username: string;
   email: string;
   password: string;
@@ -38,7 +40,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
     setIsLoading(true);
 
     try {
-      await registerUser(data.username, data.email, data.password);
+      await registerUser(data.username, data.email, data.password, data.firstName, data.lastName);
       if (onSuccess) {
         onSuccess();
       }
@@ -65,6 +67,50 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onSwitchToLogin 
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="firstName">First Name</Label>
+            <Input
+              type="text"
+              id="firstName"
+              placeholder="Enter your first name"
+              disabled={isLoading}
+              autoComplete="given-name"
+              {...register('firstName', {
+                required: 'First name is required',
+                minLength: {
+                  value: 2,
+                  message: 'First name must be at least 2 characters',
+                },
+              })}
+            />
+            {errors.firstName && (
+              <p className="text-sm text-destructive">{errors.firstName.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="lastName">Last Name</Label>
+            <Input
+              type="text"
+              id="lastName"
+              placeholder="Enter your last name"
+              disabled={isLoading}
+              autoComplete="family-name"
+              {...register('lastName', {
+                required: 'Last name is required',
+                minLength: {
+                  value: 2,
+                  message: 'Last name must be at least 2 characters',
+                },
+              })}
+            />
+            {errors.lastName && (
+              <p className="text-sm text-destructive">{errors.lastName.message}</p>
+            )}
+          </div>
+        </div>
 
         <div className="space-y-2">
           <Label htmlFor="username">Username</Label>

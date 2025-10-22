@@ -5,9 +5,12 @@ A full-stack todo application built with Flask (Python), PostgreSQL, Next.js, Ta
 ## Features
 
 - **User Authentication** with JWT tokens
-  - User registration and login with secure password hashing
+  - User registration with first name, last name, email, username, and password
+  - Secure login with password hashing
+  - Form validation with react-hook-form (real-time feedback)
   - Protected routes and API endpoints
   - Session management with localStorage
+  - Accessible modal dialogs with Shadcn UI Dialog component
 - Create, read, update, and delete todos (per-user isolation)
 - Mark todos as completed/incomplete
 - Filter todos by status (all, active, completed)
@@ -306,10 +309,12 @@ The frontend will start on `http://localhost:3000`
 - Next.js 14 - React framework
 - React 18 - UI library
 - TypeScript - Type-safe JavaScript
-- Shadcn UI - Modern component library
+- Shadcn UI - Modern component library (built on Radix UI)
 - TailwindCSS - Utility-first CSS framework
 - Lucide React - Icon library
 - Axios - HTTP client with JWT interceptors
+- react-hook-form - Performant form validation library
+- Radix UI - Unstyled, accessible UI primitives (Dialog, etc.)
 
 ## Development
 
