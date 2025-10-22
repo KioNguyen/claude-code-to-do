@@ -3,12 +3,13 @@ import Head from 'next/head';
 import TodoForm from '../components/TodoForm';
 import TodoItem from '../components/TodoItem';
 import { todoApi } from '../services/api';
+import { Todo, CreateTodoInput, UpdateTodoInput, FilterType } from '../types/todo';
 
 export default function Home() {
-  const [todos, setTodos] = useState([]);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('all');
+  const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<FilterType>('all');
 
   useEffect(() => {
     fetchTodos();
@@ -28,7 +29,7 @@ export default function Home() {
     }
   };
 
-  const handleAddTodo = async (todoData) => {
+  const handleAddTodo = async (todoData: CreateTodoInput) => {
     try {
       const newTodo = await todoApi.createTodo(todoData);
       setTodos([newTodo, ...todos]);
@@ -39,7 +40,7 @@ export default function Home() {
     }
   };
 
-  const handleUpdateTodo = async (id, todoData) => {
+  const handleUpdateTodo = async (id: number, todoData: UpdateTodoInput) => {
     try {
       const updatedTodo = await todoApi.updateTodo(id, todoData);
       setTodos(todos.map((todo) => (todo.id === id ? updatedTodo : todo)));
@@ -50,7 +51,7 @@ export default function Home() {
     }
   };
 
-  const handleDeleteTodo = async (id) => {
+  const handleDeleteTodo = async (id: number) => {
     try {
       await todoApi.deleteTodo(id);
       setTodos(todos.filter((todo) => todo.id !== id));
@@ -61,7 +62,7 @@ export default function Home() {
     }
   };
 
-  const getFilteredTodos = () => {
+  const getFilteredTodos = (): Todo[] => {
     switch (filter) {
       case 'active':
         return todos.filter((todo) => !todo.completed);

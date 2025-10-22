@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  # Override frontend for development with hot reload
+  frontend:
+    command: npm run dev
+    environment:
+      - NODE_ENV=development

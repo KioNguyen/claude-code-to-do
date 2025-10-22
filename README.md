@@ -31,10 +31,81 @@ todo/
 
 ## Prerequisites
 
+### Option 1: Docker (Recommended)
+- Docker
+- Docker Compose
+
+### Option 2: Manual Setup
 - Python 3.8 or higher
 - Node.js 18 or higher
 - PostgreSQL 12 or higher
 - npm or yarn
+
+## Quick Start with Docker
+
+The easiest way to run the entire application is using Docker Compose:
+
+```bash
+# Clone the repository
+git clone https://github.com/KioNguyen/claude-code-to-do.git
+cd claude-code-to-do
+
+# Set up environment variables (optional, for AI features)
+cp .env.example .env
+# Edit .env and add your OpenAI API key if you want AI features
+
+# Start all services (backend, frontend, database)
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop all services
+docker-compose down
+
+# Stop and remove all data
+docker-compose down -v
+```
+
+The application will be available at:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:5000
+- PostgreSQL: localhost:5432
+
+### Docker Development Mode
+
+For development with hot reload:
+
+```bash
+# Run with development compose file
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+```
+
+### Docker Commands
+
+```bash
+# Rebuild containers after code changes
+docker-compose up -d --build
+
+# View running containers
+docker-compose ps
+
+# Access backend container shell
+docker-compose exec backend sh
+
+# Access frontend container shell
+docker-compose exec frontend sh
+
+# View database logs
+docker-compose logs db
+
+# Restart a specific service
+docker-compose restart backend
+```
+
+## Manual Setup
+
+If you prefer to run the application without Docker, follow these steps:
 
 ## Backend Setup
 

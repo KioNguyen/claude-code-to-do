@@ -1,17 +1,23 @@
 import { useState } from 'react';
+import { Todo, UpdateTodoInput } from '../types/todo';
 
-export default function TodoItem({ todo, onUpdate, onDelete }) {
+interface TodoItemProps {
+  todo: Todo;
+  onUpdate: (id: number, todoData: UpdateTodoInput) => Promise<void>;
+  onDelete: (id: number) => Promise<void>;
+}
+
+export default function TodoItem({ todo, onUpdate, onDelete }: TodoItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(todo.title);
   const [editedDescription, setEditedDescription] = useState(todo.description || '');
 
   const handleToggleComplete = async () => {
-    await onUpdate(todo.id, { ...todo, completed: !todo.completed });
+    await onUpdate(todo.id, { completed: !todo.completed });
   };
 
   const handleSave = async () => {
     await onUpdate(todo.id, {
-      ...todo,
       title: editedTitle,
       description: editedDescription,
     });
@@ -39,7 +45,7 @@ export default function TodoItem({ todo, onUpdate, onDelete }) {
           onChange={(e) => setEditedDescription(e.target.value)}
           className="w-full mb-3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Description (optional)"
-          rows="3"
+          rows={3}
         />
         <div className="flex gap-2">
           <button
