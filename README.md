@@ -242,6 +242,22 @@ The frontend will start on `http://localhost:3000`
 - `PUT /api/todos/:id` - Update a todo
 - `DELETE /api/todos/:id` - Delete a todo
 
+### Authentication (JWT-based)
+
+**All endpoints require authentication except registration and login**
+
+- `POST /api/auth/register` - Register a new user
+- `POST /api/auth/login` - Login and get JWT tokens
+- `GET /api/auth/me` - Get current user profile
+- `PUT /api/auth/me` - Update user profile
+- `POST /api/auth/change-password` - Change password
+- `POST /api/auth/password-reset/request` - Request password reset
+- `POST /api/auth/password-reset/confirm` - Confirm password reset with token
+- `POST /api/auth/refresh` - Refresh access token
+- `GET /api/auth/validate-token` - Validate current token
+
+📖 **See [AUTH_API.md](AUTH_API.md) for complete authentication documentation**
+
 ### AI Features (requires OpenAI API key)
 
 - `POST /api/ai/generate-description` - Generate description for a todo title
@@ -259,8 +275,10 @@ The frontend will start on `http://localhost:3000`
 - Flask - Web framework
 - Flask-SQLAlchemy - ORM for database operations
 - Flask-CORS - Cross-origin resource sharing
+- Flask-JWT-Extended - JWT authentication
 - PostgreSQL - Database
 - psycopg2 - PostgreSQL adapter
+- Werkzeug - Password hashing (PBKDF2 + SHA256)
 - OpenAI API - AI-powered suggestions
 
 ### Frontend

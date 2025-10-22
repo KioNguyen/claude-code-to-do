@@ -1,17 +1,21 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from models import db, Todo
+from flask_jwt_extended import JWTManager
+from models import db, Todo, User
 from dotenv import load_dotenv
 import os
+from datetime import timedelta
 from ai_service import get_ai_service
+from auth_routes import auth_bp
+from auth_service import jwt_required_with_user
 
 load_dotenv()
 
 app = Flask(__name__)
 
 # Configure CORS to allow requests from localhost:3000
-CORS(app, 
-     origins=['http://localhost:3000'],
+CORS(app,
+     origins=['http://localhost:3000', 'http://localhost:3001'],
      methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
      allow_headers=['Content-Type', 'Authorization'],
      supports_credentials=True)
@@ -21,8 +25,17 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
 
-# Initialize database
+# JWT Configuration
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'jwt-secret-key-change-in-production')
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30)
+
+# Initialize extensions
 db.init_app(app)
+jwt = JWTManager(app)
+
+# Register authentication blueprint
+app.register_blueprint(auth_bp)
 
 # Create tables
 with app.app_context():
@@ -44,19 +57,24 @@ def health_check():
     return jsonify({'status': 'healthy'}), 200
 
 @app.route('/api/todos', methods=['GET'])
-def get_todos():
-    """Get all todos"""
-    todos = Todo.query.order_by(Todo.created_at.desc()).all()
+@jwt_required_with_user
+def get_todos(current_user):
+    """Get all todos for the current user"""
+    todos = Todo.query.filter_by(user_id=current_user.id).order_by(Todo.created_at.desc()).all()
     return jsonify([todo.to_dict() for todo in todos]), 200
 
 @app.route('/api/todos/<int:todo_id>', methods=['GET'])
-def get_todo(todo_id):
+@jwt_required_with_user
+def get_todo(current_user, todo_id):
     """Get a specific todo by ID"""
-    todo = Todo.query.get_or_404(todo_id)
+    todo = Todo.query.filter_by(id=todo_id, user_id=current_user.id).first()
+    if not todo:
+        return jsonify({'error': 'Todo not found'}), 404
     return jsonify(todo.to_dict()), 200
 
 @app.route('/api/todos', methods=['POST'])
-def create_todo():
+@jwt_required_with_user
+def create_todo(current_user):
     """Create a new todo"""
     data = request.get_json()
 
@@ -66,7 +84,8 @@ def create_todo():
     todo = Todo(
         title=data['title'],
         description=data.get('description', ''),
-        completed=data.get('completed', False)
+        completed=data.get('completed', False),
+        user_id=current_user.id
     )
 
     db.session.add(todo)
@@ -75,9 +94,13 @@ def create_todo():
     return jsonify(todo.to_dict()), 201
 
 @app.route('/api/todos/<int:todo_id>', methods=['PUT'])
-def update_todo(todo_id):
+@jwt_required_with_user
+def update_todo(current_user, todo_id):
     """Update an existing todo"""
-    todo = Todo.query.get_or_404(todo_id)
+    todo = Todo.query.filter_by(id=todo_id, user_id=current_user.id).first()
+    if not todo:
+        return jsonify({'error': 'Todo not found'}), 404
+
     data = request.get_json()
 
     if 'title' in data:
@@ -92,9 +115,13 @@ def update_todo(todo_id):
     return jsonify(todo.to_dict()), 200
 
 @app.route('/api/todos/<int:todo_id>', methods=['DELETE'])
-def delete_todo(todo_id):
+@jwt_required_with_user
+def delete_todo(current_user, todo_id):
     """Delete a todo"""
-    todo = Todo.query.get_or_404(todo_id)
+    todo = Todo.query.filter_by(id=todo_id, user_id=current_user.id).first()
+    if not todo:
+        return jsonify({'error': 'Todo not found'}), 404
+
     db.session.delete(todo)
     db.session.commit()
 
